@@ -21,15 +21,15 @@ GameObject:
   - component: {fileID: 4328710898492604}
   - component: {fileID: 33345779862709526}
   - component: {fileID: 23044417397872902}
-  - component: {fileID: 135072102821248672}
   - component: {fileID: 114675488760494254}
+  - component: {fileID: 135923186914867794}
   m_Layer: 0
   m_Name: PickUp
   m_TagString: Pick Up
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4328710898492604
 Transform:
   m_ObjectHideFlags: 1
@@ -37,7 +37,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1486431665140544}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1.01, z: 30.910002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -96,7 +96,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 597e417921b8a9842bfa05fefdb5c4cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!135 &135072102821248672
+  rotateSpeed: 5
+--- !u!135 &135923186914867794
 SphereCollider:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -106,5 +107,5 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.009
+  m_Radius: 0.9
   m_Center: {x: 0, y: 0, z: 0}

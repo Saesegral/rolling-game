@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour {
+    //A lot of these public variables are for testing purposes, should make them constants in the end?
     public float speed;
     public GameObject pickUps;
     public Text countText;
@@ -12,11 +13,14 @@ public class PlayerController : MonoBehaviour {
     public float deathHeight;
     public float joyWeight;
     public float forwardSpeed;
+    public float jumpPower;
 
     private Rigidbody rb;
+    private float moveHorizontal;
     private int count;
     private int winCount;
-    private bool onGround;
+    private bool jumpButtonPressed;
+    private bool paused;
     
     void Start()
     {
@@ -25,34 +29,65 @@ public class PlayerController : MonoBehaviour {
         SetCountText();
         winText.text = "";
         winCount = pickUps.transform.childCount;
-        onGround = true;
+        jumpButtonPressed = false;
+        paused = false;
     }
 
     private void Update()
     {
+        //Jump code
+        float distanceToFloor = GetComponent<Collider>().bounds.extents.y;
+        bool onGround = Physics.Raycast(transform.position, Vector3.down, distanceToFloor);
 
-        rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, forwardSpeed);
-        if(onGround && Input.GetAxis("Jump") >0)
-        rb.velocity+=Input.GetAxis("Jump")*Vector3.up;
-        
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBGL
+        if (onGround && Input.GetKeyDown(KeyCode.Space))
+        {
+            rb.velocity += jumpPower * Vector3.up;
+        }
+#endif
+
+#if (UNITY_ANDROID || UNIT_IOS) && !UNITY_EDITOR
+        if (onGround && jumpButtonPressed)
+            {
+                rb.velocity += jumpPower * Vector3.up;
+            jumpButtonPressed = false;
+            }
+#endif
+
+        //Steering left/right code
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBGL
+        moveHorizontal = Input.GetAxis("Horizontal");
+#endif
+
+#if (UNITY_ANDROID || UNIT_IOS) && !UNITY_EDITOR
+        moveHorizontal = joyWeight * joystick.Horizontal;
+#endif
+
+        rb.velocity = new Vector3(speed * moveHorizontal, rb.velocity.y, forwardSpeed);
+
+        //Pause code
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBGL
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            paused = !paused;
+        }
+#endif
+
+
+        //Death code
         if (transform.position.y < deathHeight)
         {
+            foreach (Transform pickUp in pickUps.transform)
+            {
+                pickUp.gameObject.SetActive(true);
+            }
+            count = 0;
+            SetCountText();
             transform.position = new Vector3(0.0f, 1.0f, 0.0f);
             rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+
         }
-    }
-
-    void FixedUpdate()
-    {
-        //This is hacky need device dependent controls to be separated
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        moveHorizontal+=joyWeight*joystick.Horizontal;
-        float moveVertical = Input.GetAxis("Vertical");
-        moveVertical += joyWeight * joystick.Vertical;
-        
-        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
-
-        rb.AddForce(movement*speed);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -65,9 +100,14 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    public void Jump()
+    {
+        jumpButtonPressed = true;
+    }
+
     void SetCountText()
     {
-        countText.text = "Count: " + count.ToString();
+        countText.text = "Count: " + count.ToString()+ "/"+winCount;
         if (count >= winCount)
         {
             winText.text = "You win!";
